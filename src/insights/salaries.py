@@ -27,30 +27,42 @@ def get_min_salary(path: str) -> int:
     return min_salary
 
 
+def validate_job(job):
+    min_salary = not job.__contains__("min_salary")
+    max_salary = not job.__contains__("max_salary")
+
+    if min_salary or max_salary:
+        raise ValueError('Keys: "min_salary" e "max_salary" são obrigatórios')
+
+    min_type = type(job["min_salary"]) != int
+    max_type = type(job["max_salary"]) != int
+
+    if min_type or max_type:
+        raise ValueError('"min_type" e "max_type" tem que ser do type "int"')
+
+
+# def validate_salary(salary):
+#     salary_type = salary.isnumeric() or salary < 0
+
+#     if salary_type:
+#         raise ValueError('"salary_type" tem que ser do type "int"')
+
+
 def matches_salary_range(job: Dict, salary: Union[int, str]) -> bool:
-    """Checks if a given salary is in the salary range of a given job
+    try:
+        validate_job(job)
+        # validate_salary(salary)
 
-    Parameters
-    ----------
-    job : dict
-        The job with `min_salary` and `max_salary` keys
-    salary : int
-        The salary to check if matches with salary range of the job
+        min_value = job["min_salary"]
+        max_value = job["max_salary"]
 
-    Returns
-    -------
-    bool
-        True if the salary is in the salary range of the job, False otherwise
+        if min_value > max_value:
+            raise ValueError('"min_value" não pode ser maior que "max_value"')
 
-    Raises
-    ------
-    ValueError
-        If `job["min_salary"]` or `job["max_salary"]` doesn't exists
-        If `job["min_salary"]` or `job["max_salary"]` aren't valid integers
-        If `job["min_salary"]` is greather than `job["max_salary"]`
-        If `salary` isn't a valid integer
-    """
-    raise NotImplementedError
+        return int(salary) >= min_value and int(salary) <= max_value
+
+    except AttributeError:
+        raise ValueError('Erro ao validar!')
 
 
 def filter_by_salary_range(
