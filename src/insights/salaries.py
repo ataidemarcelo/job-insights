@@ -27,60 +27,50 @@ def get_min_salary(path: str) -> int:
     return min_salary
 
 
-def validate_job(job):
-    min_salary = not job.__contains__("min_salary")
-    max_salary = not job.__contains__("max_salary")
+def validate_job(job: Dict) -> None:
+    try:
+        max_salary = int(job["max_salary"])
+        min_salary = int(job["min_salary"])
 
-    if min_salary or max_salary:
-        raise ValueError('Keys: "min_salary" e "max_salary" são obrigatórios')
-
-    min_type = type(job["min_salary"]) != int
-    max_type = type(job["max_salary"]) != int
-
-    if min_type or max_type:
-        raise ValueError('"min_type" e "max_type" tem que ser do type "int"')
+        if min_salary > max_salary:
+            raise ValueError('"min_salary" deve ser maior que "max_salary"')
+    except Exception as err:
+        raise ValueError(f'Erro ao validar "job": {err.__class__}')
+    else:
+        return job
 
 
-# def validate_salary(salary):
-#     salary_type = salary.isnumeric() or salary < 0
-
-#     if salary_type:
-#         raise ValueError('"salary_type" tem que ser do type "int"')
+def validate_salary(salary: Union[int, str]) -> None:
+    try:
+        int(salary)
+    except Exception as err:
+        raise ValueError(f'Erro ao validar "salary": {err.__class__}')
+    else:
+        return salary
 
 
 def matches_salary_range(job: Dict, salary: Union[int, str]) -> bool:
-    try:
-        validate_job(job)
-        # validate_salary(salary)
+    valid_job = validate_job(job)
+    valid_salary = validate_salary(salary)
 
-        min_value = job["min_salary"]
-        max_value = job["max_salary"]
+    max_salary = int(valid_job["max_salary"])
+    min_salary = int(valid_job["min_salary"])
+    salary_data = int(valid_salary)
 
-        if min_value > max_value:
-            raise ValueError('"min_value" não pode ser maior que "max_value"')
-
-        return int(salary) >= min_value and int(salary) <= max_value
-
-    except AttributeError:
-        raise ValueError('Erro ao validar!')
+    return salary_data >= min_salary and salary_data <= max_salary
 
 
 def filter_by_salary_range(
     jobs: List[dict],
     salary: Union[str, int]
 ) -> List[Dict]:
-    """Filters a list of jobs by salary range
+    filtered_jobs = []
 
-    Parameters
-    ----------
-    jobs : list
-        The jobs to be filtered
-    salary : int
-        The salary to be used as filter
+    for job in jobs:
+        try:
+            if matches_salary_range(job, salary):
+                filtered_jobs.append(job)
+        except Exception:
+            pass
 
-    Returns
-    -------
-    list
-        Jobs whose salary range contains `salary`
-    """
-    raise NotImplementedError
+    return filtered_jobs
